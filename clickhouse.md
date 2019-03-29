@@ -37,11 +37,11 @@ insert
 		`default`.admin SELECT
 			*
 		FROM
-			mysql('10.0.20.202:3306',
-			'dct',
-			'admin',
-			'duocaitou',
-			'J8UfRvLEiUPz')
+			mysql('host:port',
+			'database',
+			'table',
+			'user',
+			'password')
 
 ```
 #### 从kafka中导入数据
