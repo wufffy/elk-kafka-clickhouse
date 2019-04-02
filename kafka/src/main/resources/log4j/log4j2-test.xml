@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+<!--Configuration后面的status，这个用于设置log4j2自身内部的信息输出，可以不设置，当设置成trace时，你会看到log4j2内部各种详细输出-->
+<!--monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本身，设置间隔秒数-->
+<configuration status="WARN" monitorInterval="30">
+
+    <properties>
+        <!-- 文件输出格式 -->
+        <property name="PATTERN">[%-5p][duo-coupon-api][%r][%-22d{yyyy/MM/dd HH:mm:ss,SSS}][%F][%L][%t][%m][%X{requestId}][%X{userId}][%X{FILE}][%X{LINE}]%n
+        </property>
+        <property name="PROJECT_NAME">duo-coupon-api</property>
+        <property name="LOG_PATH">/home/webapp/javaApp/javalog/duo-coupon-api/log</property>
+
+    </properties>
+
+    <!--先定义所有的appender-->
+    <appenders>
+        <!-- 这个会打印出所有的info及以下级别的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档-->
+        <RollingFile name="RollingFileDebug" fileName="${LOG_PATH}/debug.log"
+                     filePattern="${LOG_PATH}/%d{yyyy-MM-dd}_debug.log">
+            <Filters>
+                <ThresholdFilter level="info" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout charset="UTF-8" pattern="${PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="RollingFileInfo" fileName="${LOG_PATH}/info.log"
+                     filePattern="${LOG_PATH}/%d{yyyy-MM-dd}_info.log">
+            <Filters>
+                <ThresholdFilter level="warn" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout charset="UTF-8" pattern="${PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="RollingFileWarn" fileName="${LOG_PATH}/warn.log"
+                     filePattern="${LOG_PATH}/%d{yyyy-MM-dd}_warn.log">
+            <Filters>
+                <ThresholdFilter level="error" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="warn" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout charset="UTF-8" pattern="${PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="RollingFileError" fileName="${LOG_PATH}/error.log"
+                     filePattern="${LOG_PATH}/%d{yyyy-MM-dd}_error.log">
+            <Filters>
+                <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout charset="UTF-8" pattern="${PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="RollingMQFileInfo" fileName="${LOG_PATH}/mq.log"
+                     filePattern="${LOG_PATH}/%d{yyyy-MM-dd}_mq.log">
+            <Filters>
+                <ThresholdFilter level="warn" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout charset="UTF-8" pattern="${PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+            </Policies>
+        </RollingFile>
+    </appenders>
+
+    <!--然后定义logger，只有定义了logger并引入的appender，appender才会生效-->
+    <loggers>
+        <logger name="org.springframework" level="INFO"/>
+        <logger name="com.duocaitou" level="INFO"/>
+        <logger name="org.mybatis" level="INFO"/>
+        <logger name="com.duocaitou.coupon.repository.mapper" level="DEBUG"/>
+        <root level="INFO">
+            <appender-ref ref="RollingFileInfo"/>
+            <appender-ref ref="RollingFileWarn"/>
+            <appender-ref ref="RollingFileError"/>
+            <Logger name="mq.log" level="info" additivity="false">
+                <appender-ref ref="RollingMQFileInfo"/>
+            </Logger>
+        </root>
+    </loggers>
+</configuration>
